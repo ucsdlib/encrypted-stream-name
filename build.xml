@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+<project name="encrypted-stream-name" default="jar" basedir=".">
+  <property name="appName" value="encrypted-stream-name"/>
+  <property file="${user.home}/build.properties"/>
+  <property file="${basedir}/build.properties"/>
+  <property name="src"       value="${basedir}/src"/>
+  <property name="java"      value="${src}/java"/>
+  <property name="lib"       value="${src}/lib"/>
+  <property name="tmp"       value="${basedir}/tmp"/>
+
+  <tstamp>
+    <format property="build.timestamp" pattern="yyyy-MM-dd'T'HH:mm:ssZ"/>
+  </tstamp>
+
+  <!-- version numbering -->
+  <target name="version">
+    <!-- src version from 'git describe' -->
+    <exec executable="git" outputproperty="src.version"
+        failifexecutionfails="false" errorproperty="">
+      <arg value="describe"/>
+      <arg value="--all"/>
+      <arg value="--always"/>
+      <arg value="--long"/>
+      <arg value="--abbrev=40"/>
+      <arg value="HEAD"/>
+    </exec>
+    <condition property="src.version" value="${src.version}" else="unknown">
+      <and>
+        <isset property="git.revision"/>
+        <length string="${git.revision}" trim="yes" length="0" when="greater"/>
+      </and>
+    </condition>
+
+    <!-- filters -->
+    <filterset id="version-filters">
+      <filter token="src_version"     value="${src.version}"/>
+      <filter token="build_timestamp" value="${build.timestamp}"/>
+    </filterset>
+
+    <echo level="info" message="src ver..: ${src.version}"/>
+    <echo level="info" message="timestamp: ${build.timestamp}"/>
+  </target>
+
+  <path id="classpath">
+    <fileset dir="${lib}" id="lib">
+      <include name="*.jar"/>
+    </fileset>
+  </path>
+
+  <!-- remove temp files -->
+  <target name="clean" description="Delete generated directories">
+    <delete dir="${tmp}"/>
+  </target>
+
+  <!-- prepare -->
+  <target name="prepare" description="Create output directories.">
+    <mkdir dir="${tmp}"/>
+    <mkdir dir="${tmp}/classes"/>
+  </target>
+
+  <!-- compile -->
+  <target name="compile" description="Compile Java classes."
+      depends="prepare,version">
+    <!-- compile -->
+    <javac destdir="${tmp}/classes" srcdir="${java}"
+        deprecation="on" debug="true" debuglevel="lines,source" target="1.6"
+        includeantruntime="false" source="1.6">
+      <classpath refid="classpath"/>
+    </javac>
+  </target>
+
+  <!-- build jar -->
+  <target name="jar" description="Build JAR file" depends="compile">
+    <!-- move old jar file out of the way -->
+    <move file="${tmp}/${appName}.jar" tofile="${tmp}/${appName}.bak"
+      failonerror="false"/>
+
+    <!-- generate new war file -->
+    <jar destfile="${tmp}/${appName}.jar">
+      <fileset dir="${tmp}/classes"/>
+    </jar>
+  </target>
+
+  <!-- deploy webapp -->
+  <target name="deploy" description="Deploy JAR file to Wowza" depends="jar">
+    <copy file="${tmp}/${appName}.jar" todir="${deploy.home}"/>
+  </target>
+</project>
