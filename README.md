@@ -5,6 +5,9 @@ and rename the stream internally to the decrypted name.
 
 
 ### configuration
+
+configure the module and properties in `/usr/local/WowzaMediaServer/conf/[host]/Application.xml`:
+
 module:
 
 ``` xml
@@ -32,8 +35,8 @@ props:
 
 install:
 
-    ``` sh
-	cp encrypted-stream-name.jar /usr/local/WowzaMediaServer/lib/
-	cp lib/commons-codec-1.6.jar /usr/local/WowzaMediaServer/lib/
-	sudo /sbin/service WowzaMediaServer restart
-    ```
+``` sh
+cp encrypted-stream-name.jar /usr/local/WowzaMediaServer/lib/
+cp lib/commons-codec-1.6.jar /usr/local/WowzaMediaServer/lib/
+sudo /sbin/service WowzaMediaServer restart
+```
