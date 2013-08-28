@@ -9,6 +9,7 @@ and rename the stream internally to the decrypted name.
 
     ```
     "bd0786115s 0-2.mp4 192.168.1.100" -> "odx0klxzpuc785iy,mrKmOjRTYGH6yuG4G2oy9jwB2TrVqhS9UVf1r8Znnm36CfJ6CorePqajirhNbO-M"
+    ```
 
 2. The [EncryptedStreamNameModule.decryptStreamName](https://lib-stash.ucsd.edu/projects/ND/repos/encrypted-stream-name/browse/src/java/edu/ucsd/library/dams/util/EncryptedStreamNameModule.java#150) method splits the nonce from the encrypted string, and uses the secret key to decrypt the string.  It then checks that the client IP address matches the specified IP address, generates the path to the video file, and renames the stream internally to Wowza so it will serve the video file.
 
