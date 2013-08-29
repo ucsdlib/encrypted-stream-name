@@ -49,72 +49,122 @@ public class EncryptedStreamNameModule extends ModuleBase
 		app.setStreamNameAliasProvider(this);
 	}
 
-	public String resolvePlayAlias(IApplicationInstance appInstance, String name, IClient client) {
+	/**
+	 * Handle Flash client requests.
+	**/
+	public String resolvePlayAlias( IApplicationInstance appInstance,
+		String name, IClient client )
+	{
 		getLogger().info("Resolve Play Flash: " + name);
-		try {
+		try
+		{
 			return decryptStreamName( name, client.getIp() );
-		} catch ( Exception ex ) {
+		}
+		catch ( Exception ex )
+		{
 			getLogger().warn( "Error decrypting stream", ex );
-			sendClientOnStatusError( client, "NetStream.Play.Failed", ex.getMessage().replaceAll(": .*","") );
+			sendClientOnStatusError(
+				client, "NetStream.Play.Failed",
+				ex.getMessage().replaceAll(": .*","")
+			);
 			return null;
 		}
 	}
 
-	public String resolvePlayAlias(IApplicationInstance appInstance, String name, IHTTPStreamerSession httpSession) {
+	/**
+	 * Handle HTTP client requests.
+	**/
+	public String resolvePlayAlias( IApplicationInstance appInstance,
+		String name, IHTTPStreamerSession httpSession )
+	{
 		getLogger().info("Resolve Play HTTPSession: " + name);
-		try {
+		try
+		{
 			return decryptStreamName( name, httpSession.getIpAddress() );
-		} catch ( Exception ex ) {
+		}
+		catch ( Exception ex )
+		{
 			getLogger().warn( "Error decrypting stream", ex );
 			return null;
 		}
 	}
 
-	public String resolvePlayAlias(IApplicationInstance appInstance, String name, RTPSession rtpSession) {
+	/**
+	 * Handle RTP client requests.
+	**/
+	public String resolvePlayAlias( IApplicationInstance appInstance,
+		String name, RTPSession rtpSession )
+	{
 		getLogger().info("Resolve Play RTPSession: " + name);
-		try {
+		try
+		{
 			return decryptStreamName( name, rtpSession.getIp() );
-		} catch ( Exception ex ) {
+		}
+		catch ( Exception ex )
+		{
 			getLogger().warn( "Error decrypting stream", ex );
 			return null;
 		}
 	}
 
-	public String resolvePlayAlias(IApplicationInstance appInstance, String name, ILiveStreamPacketizer liveStreamPacketizer) {
+	/**
+	 * Handle livestream client requests.
+	**/
+	public String resolvePlayAlias( IApplicationInstance appInstance,
+		String name, ILiveStreamPacketizer liveStreamPacketizer )
+	{
 		getLogger().info("Resolve Play LiveStreamPacketizer: " + name);
-		try {
+		try
+		{
 			return decryptStreamName( name, unknownIP );
-		} catch ( Exception ex ) {
+		}
+		catch ( Exception ex )
+		{
 			getLogger().warn( "Error decrypting stream", ex );
 			return null;
 		}
 	}
 
-	public String resolveStreamAlias(IApplicationInstance appInstance, String name, IMediaCaster mediaCaster) {
+	public String resolveStreamAlias( IApplicationInstance appInstance,
+		String name, IMediaCaster mediaCaster )
+	{
 		getLogger().info("Resolve Stream Mediacaster: " + name);
-		try {
+		try
+		{
 			return decryptStreamName( name, unknownIP );
-		} catch ( Exception ex ) {
+		}
+		catch ( Exception ex )
+		{
 			getLogger().warn( "Error decrypting stream", ex );
 			return null;
 		}
 	}
 
-	public String resolvePlayAlias(IApplicationInstance appInstance, String name) {
+	public String resolvePlayAlias( IApplicationInstance appInstance,
+		String name)
+	{
 		getLogger().info("Resolve Play: " + name);
-		try {
+		try
+		{
 			return decryptStreamName( name, unknownIP );
-		} catch ( Exception ex ) {
+		}
+		catch ( Exception ex )
+		{
 			getLogger().warn( "Error decrypting stream", ex );
 			return null;
 		}
 	}
 
-	public String resolveStreamAlias(IApplicationInstance appInstance, String name) {
+	public String resolveStreamAlias( IApplicationInstance appInstance,
+		String name )
+	{
 		getLogger().info("Resolve Stream: " + name);
-		try {
+		try
+		{
 			return decryptStreamName( name, unknownIP );
-		} catch ( Exception ex ) {
+		}
+		catch ( Exception ex )
+		{
 			getLogger().warn( "Error decrypting stream", ex );
 			return null;
 		}
@@ -147,6 +197,16 @@ public class EncryptedStreamNameModule extends ModuleBase
 		cipher.init( Cipher.DECRYPT_MODE, key, params );
 		return new String( cipher.doFinal(decoded) );
 	}
+
+	/**
+	 * Parse encrypted stream info and check request IP address.
+	 * @param streamName Encrypted stream name in the format:
+     *     [type:] [nonce] "," [encrypted stream info]
+	 *   The encrypted stream info should be in the format:
+	 *     [object id] " " [file id] " " [request IP]
+	 * @param requestIP The IP address of the Wowza request, which will be
+	 *   checked against the IP address in the stream info package.
+	**/
 	private String decryptStreamName( String streamName, String requestIP )
 		throws Exception
 	{
@@ -154,9 +214,25 @@ public class EncryptedStreamNameModule extends ModuleBase
 		if ( streamName.indexOf(",") == -1 )
 		{
 			getLogger().warn( "plain: " + streamName );
-			throw new Exception("Invalid stream name: Trying to decrypt plain stream name: " + streamName);
+			throw new Exception(
+				"Invalid stream name: Trying to decrypt plain stream name: "
+				+ streamName
+			);
 		}
-		streamName = streamName.replaceAll("mp4:","");
+
+		// parse type prefix
+		String type = "";
+		int idx = streamName.indexOf(":");
+		if ( idx != -1 )
+		{
+			type = streamName.substring( 0, idx + 1 );
+			streamName = streamName.substring( idx + 1 );
+		}
+		else
+		{
+		}
+
+		// parse and decrypt stream info
 		String[] parts = streamName.split(","); // nonce,ciphertext
 		String argStr = decrypt(parts[0],parts[1]);
 		String[] argArr = argStr.split(" "); // ark,file,ip
@@ -184,7 +260,7 @@ public class EncryptedStreamNameModule extends ModuleBase
 		}
 
 		// rename the stream
-		String newName = streamBase;
+		String newName = type + streamBase;
 		try
 		{
 			// pairpath based on objid
@@ -199,7 +275,10 @@ public class EncryptedStreamNameModule extends ModuleBase
 		}
 		catch ( Exception ex )
 		{
-			throw new Exception( "Error building stream name: " + newName + ", " + objid + ", " + fileid );
+			throw new Exception(
+				"Error building stream name: " + newName + ", " + objid + ", "
+				+ fileid
+			);
 		}
 	}
 	public static void main( String[] args ) throws Exception
