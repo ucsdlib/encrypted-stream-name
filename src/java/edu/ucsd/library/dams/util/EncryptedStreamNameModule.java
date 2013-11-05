@@ -253,11 +253,14 @@ public class EncryptedStreamNameModule extends ModuleBase
 		}
 
 		// make sure the request IP matches the verified IP
+    // NOTE: temporarily commenting out since this doesn't work with Reverse Proxy configuration
+    /*
 		if ( requestIP == null || requestIP.trim().equals("")
 			|| !requestIP.equals(ip) )
 		{
 			throw new Exception( "Invalid IP address: " + requestIP);
 		}
+    */
 
 		// rename the stream
 		String newName = type + streamBase;
