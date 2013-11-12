@@ -220,18 +220,6 @@ public class EncryptedStreamNameModule extends ModuleBase
 			);
 		}
 
-		// parse type prefix
-		String type = "";
-		int idx = streamName.indexOf(":");
-		if ( idx != -1 )
-		{
-			type = streamName.substring( 0, idx + 1 );
-			streamName = streamName.substring( idx + 1 );
-		}
-		else
-		{
-		}
-
 		// parse and decrypt stream info
 		String[] parts = streamName.split(","); // nonce,ciphertext
 		String argStr = decrypt(parts[0],parts[1]);
@@ -262,8 +250,40 @@ public class EncryptedStreamNameModule extends ModuleBase
 		}
     */
 
+		//
+		// Set Wowza stream name prefix, defaults to "mp4:"
+		//
+
+		String extension = "";
+		String wowzaStreamNamePrefix = "";
+
+		int i = fileid.lastIndexOf('.');
+
+		if (i == -1)
+		{
+			throw new Exception( "Missing file extension: " + fileid );
+		}
+		else
+		{
+			extension = fileid.substring(i+1).toLowerCase();
+		}
+
+		switch (extension)
+		{
+			case "mp3":
+				wowzaStreamNamePrefix = "mp3:";
+				break;
+			case "flv":
+				wowzaStreamNamePrefix = "flv:";
+				break;
+			default:
+				wowzaStreamNamePrefix = "mp4:";
+				break;
+		}
+
 		// rename the stream
-		String newName = type + streamBase;
+		String newName = wowzaStreamNamePrefix + streamBase;
+
 		try
 		{
 			// pairpath based on objid
