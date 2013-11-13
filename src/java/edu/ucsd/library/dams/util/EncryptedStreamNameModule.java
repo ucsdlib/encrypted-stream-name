@@ -259,13 +259,13 @@ public class EncryptedStreamNameModule extends ModuleBase
 
 		int dot = fileid.lastIndexOf('.');
 
-		if (dot == -1)
+		if (dot >= 0)
 		{
-			throw new Exception( "Missing file extension: " + fileid );
+			extension = fileid.substring(dot+1).toLowerCase();
 		}
 		else
 		{
-			extension = fileid.substring(dot+1).toLowerCase();
+			throw new Exception( "Missing file extension: " + fileid );
 		}
 
 		if (extension == "mp3")
@@ -280,6 +280,10 @@ public class EncryptedStreamNameModule extends ModuleBase
 		//
 
 		String newName = wowzaStreamNamePrefix + streamBase;
+
+		// begin temp
+		getLogger().warn( "OMG: " + fileid  + " | " + extension + " | " + wowzaStreamNamePrefix + " | " + newName + " | " + dot);
+		// end temp
 
 		try
 		{
