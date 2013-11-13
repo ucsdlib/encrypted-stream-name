@@ -268,9 +268,9 @@ public class EncryptedStreamNameModule extends ModuleBase
 			throw new Exception( "Missing file extension: " + fileid );
 		}
 
-		if (extension == "mp3")
+		if (extension.equals("mp3"))
 			{wowzaStreamNamePrefix = "mp3:";}
-		else if (extension == "flv")
+		else if (extension.equals("flv"))
 			{wowzaStreamNamePrefix = "flv:";}
 		else
 			{wowzaStreamNamePrefix = "mp4:";}
