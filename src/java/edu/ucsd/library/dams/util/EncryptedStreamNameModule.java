@@ -281,10 +281,6 @@ public class EncryptedStreamNameModule extends ModuleBase
 
 		String newName = wowzaStreamNamePrefix + streamBase;
 
-		// begin temp
-		getLogger().warn( "OMG: " + fileid  + " | " + extension + " | " + wowzaStreamNamePrefix + " | " + newName + " | " + dot);
-		// end temp
-
 		try
 		{
 			// pairpath based on objid
