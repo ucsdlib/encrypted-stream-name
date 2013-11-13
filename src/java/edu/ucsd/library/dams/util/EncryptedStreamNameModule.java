@@ -257,31 +257,28 @@ public class EncryptedStreamNameModule extends ModuleBase
 		String extension = "";
 		String wowzaStreamNamePrefix = "";
 
-		int i = fileid.lastIndexOf('.');
+		int dot = fileid.lastIndexOf('.');
 
-		if (i == -1)
+		if (dot == -1)
 		{
 			throw new Exception( "Missing file extension: " + fileid );
 		}
 		else
 		{
-			extension = fileid.substring(i+1).toLowerCase();
+			extension = fileid.substring(dot+1).toLowerCase();
 		}
 
-		switch (extension)
-		{
-			case "mp3":
-				wowzaStreamNamePrefix = "mp3:";
-				break;
-			case "flv":
-				wowzaStreamNamePrefix = "flv:";
-				break;
-			default:
-				wowzaStreamNamePrefix = "mp4:";
-				break;
-		}
+		if (extension == "mp3")
+			{wowzaStreamNamePrefix = "mp3:";}
+		else if (extension == "flv")
+			{wowzaStreamNamePrefix = "flv:";}
+		else
+			{wowzaStreamNamePrefix = "mp4:";}
 
-		// rename the stream
+		//
+		// Rename the stream
+		//
+
 		String newName = wowzaStreamNamePrefix + streamBase;
 
 		try
