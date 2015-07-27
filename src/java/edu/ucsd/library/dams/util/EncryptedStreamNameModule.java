@@ -292,11 +292,11 @@ public class EncryptedStreamNameModule extends ModuleBase
 			}
 			newName += "20775-" + objid + "-" + fileid.replaceAll("/","-");
 			getLogger().warn( "decrypted: " + streamName  + " -> " + newName );
-			File f = new File(newName);
+			/*File f = new File(newName);
 			if(!f.exists()) {
 				newName = wowzaStreamNamePrefix + streamBase + fileid;
 				getLogger().warn( "dmr decrypted: " + streamName  + " -> " + newName );
-			}
+			}*/
 			return newName;
 		}
 		catch ( Exception ex )
