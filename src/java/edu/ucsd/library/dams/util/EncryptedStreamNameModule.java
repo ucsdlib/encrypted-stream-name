@@ -235,7 +235,7 @@ public class EncryptedStreamNameModule extends ModuleBase
 		String ip = argArr[2];
 
 		// check format of objid and fileid
-		if ( objid == null || objid.trim().equals("") || objid.length() != 10
+		if ( objid == null || objid.trim().equals("")
 			|| fileid == null || fileid.trim().equals("") )
 		{
 			throw new Exception( "Invalid object: " + objid + "/" + fileid );
