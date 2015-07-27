@@ -2,6 +2,7 @@ package edu.ucsd.library.dams.util;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.File;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
@@ -291,6 +292,11 @@ public class EncryptedStreamNameModule extends ModuleBase
 			}
 			newName += "20775-" + objid + "-" + fileid.replaceAll("/","-");
 			getLogger().warn( "decrypted: " + streamName  + " -> " + newName );
+			File f = new File(newName);
+			if(!f.exists()) {
+				newName = wowzaStreamNamePrefix + streamBase + fileid;
+				getLogger().warn( "decrypted: " + streamName  + " -> " + newName );
+			}
 			return newName;
 		}
 		catch ( Exception ex )
