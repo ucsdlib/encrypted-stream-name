@@ -238,7 +238,7 @@ public class EncryptedStreamNameModule extends ModuleBase
 		if ( objid == null || objid.trim().equals("")
 			|| fileid == null || fileid.trim().equals("") )
 		{
-			throw new Exception( "Invalid object: " + objid + "/" + fileid );
+			throw new Exception( "Invalid object:... " + objid + "/" + fileid );
 		}
 
 		// make sure the request IP matches the verified IP
@@ -295,7 +295,7 @@ public class EncryptedStreamNameModule extends ModuleBase
 			File f = new File(newName);
 			if(!f.exists()) {
 				newName = wowzaStreamNamePrefix + streamBase + fileid;
-				getLogger().warn( "decrypted: " + streamName  + " -> " + newName );
+				getLogger().warn( "dmr decrypted: " + streamName  + " -> " + newName );
 			}
 			return newName;
 		}
