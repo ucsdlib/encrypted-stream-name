@@ -25,6 +25,8 @@ import com.wowza.wms.stream.livepacketizer.ILiveStreamPacketizer;
 import com.wowza.wms.rtp.model.RTPSession;
 import com.wowza.wms.httpstreamer.model.IHTTPStreamerSession;
 
+import java.util.regex.Pattern;
+
 /**
  * Wowza module to decrypt an encrypted stream name and check validity before
  * renaming to correct stream name.
@@ -292,8 +294,8 @@ public class EncryptedStreamNameModule extends ModuleBase
 			}
 			newName += "20775-" + objid + "-" + fileid.replaceAll("/","-");
 			getLogger().warn( "decrypted: " + streamName  + " -> " + newName );
-			if(!objid.startsWith("b")) {
-				newName = wowzaStreamNamePrefix + streamBase + fileid;
+			if(startsWithDigit(objid)) {
+				newName = wowzaStreamNamePrefix + fileid;
 				getLogger().warn( "decrypted: " + streamName  + " -> " + newName );
 			}
 			return newName;
@@ -306,6 +308,15 @@ public class EncryptedStreamNameModule extends ModuleBase
 			);
 		}
 	}
+
+	/**
+	 * Check to see if the String starts with Digit.
+	 * @param s String
+	**/
+	private boolean startsWithDigit(String s) {
+      return Pattern.compile("^[0-9]").matcher(s).find();
+	}
+	  
 	public static void main( String[] args ) throws Exception
 	{
 		String[] parts = args[0].split(",");
