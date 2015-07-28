@@ -224,10 +224,7 @@ public class EncryptedStreamNameModule extends ModuleBase
 		}
 
 		// parse and decrypt stream info
-		String[] parts = streamName.split(","); // nonce,ciphertext
-		
-		getLogger().warn( "streamname" + streamName + "keyfile: " + keyFile  + " streambase " + streamBase );
-		
+		String[] parts = streamName.split(","); // nonce,ciphertext		
 		String argStr = decrypt(parts[0],parts[1]);
 		String[] argArr = argStr.split(" "); // ark,file,ip
 		if ( argArr == null || argArr.length != 3 )
