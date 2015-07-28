@@ -35,9 +35,9 @@ import java.util.regex.Pattern;
 public class EncryptedStreamNameModule extends ModuleBase
 	implements IMediaStreamNameAliasProvider2
 {
-	private static String streamBase = null;
-	private static String keyFile = null;
-	private static String unknownIP = "";
+	private String streamBase = null;
+	private String keyFile = null;
+	private String unknownIP = "";
 
 	/**
 	 * Initialization.
