@@ -2,6 +2,7 @@ package edu.ucsd.library.dams.util;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.File;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
@@ -24,6 +25,8 @@ import com.wowza.wms.stream.livepacketizer.ILiveStreamPacketizer;
 import com.wowza.wms.rtp.model.RTPSession;
 import com.wowza.wms.httpstreamer.model.IHTTPStreamerSession;
 
+import java.util.regex.Pattern;
+
 /**
  * Wowza module to decrypt an encrypted stream name and check validity before
  * renaming to correct stream name.
@@ -32,9 +35,9 @@ import com.wowza.wms.httpstreamer.model.IHTTPStreamerSession;
 public class EncryptedStreamNameModule extends ModuleBase
 	implements IMediaStreamNameAliasProvider2
 {
-	private static String streamBase = null;
-	private static String keyFile = null;
-	private static String unknownIP = "";
+	private String streamBase = null;
+	private String keyFile = null;
+	private String unknownIP = "";
 
 	/**
 	 * Initialization.
@@ -221,7 +224,7 @@ public class EncryptedStreamNameModule extends ModuleBase
 		}
 
 		// parse and decrypt stream info
-		String[] parts = streamName.split(","); // nonce,ciphertext
+		String[] parts = streamName.split(","); // nonce,ciphertext		
 		String argStr = decrypt(parts[0],parts[1]);
 		String[] argArr = argStr.split(" "); // ark,file,ip
 		if ( argArr == null || argArr.length != 3 )
@@ -234,10 +237,10 @@ public class EncryptedStreamNameModule extends ModuleBase
 		String ip = argArr[2];
 
 		// check format of objid and fileid
-		if ( objid == null || objid.trim().equals("") || objid.length() != 10
+		if ( objid == null || objid.trim().equals("")
 			|| fileid == null || fileid.trim().equals("") )
 		{
-			throw new Exception( "Invalid object: " + objid + "/" + fileid );
+			throw new Exception( "Invalid object:... " + objid + "/" + fileid );
 		}
 
 		// make sure the request IP matches the verified IP
@@ -291,6 +294,10 @@ public class EncryptedStreamNameModule extends ModuleBase
 			}
 			newName += "20775-" + objid + "-" + fileid.replaceAll("/","-");
 			getLogger().warn( "decrypted: " + streamName  + " -> " + newName );
+			if(startsWithDigit(objid)) {
+				newName = wowzaStreamNamePrefix + fileid;
+				getLogger().warn( "decrypted: " + streamName  + " -> " + newName );
+			}
 			return newName;
 		}
 		catch ( Exception ex )
@@ -301,6 +308,15 @@ public class EncryptedStreamNameModule extends ModuleBase
 			);
 		}
 	}
+
+	/**
+	 * Check to see if the String starts with Digit.
+	 * @param s String
+	**/
+	private boolean startsWithDigit(String s) {
+      return Pattern.compile("^[0-9]").matcher(s).find();
+	}
+	  
 	public static void main( String[] args ) throws Exception
 	{
 		String[] parts = args[0].split(",");
