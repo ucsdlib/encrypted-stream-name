@@ -27,6 +27,7 @@ import com.wowza.wms.httpstreamer.model.IHTTPStreamerSession;
 
 import java.util.regex.Pattern;
 
+import org.junit.Assert;
 /**
  * Wowza module to decrypt an encrypted stream name and check validity before
  * renaming to correct stream name.
@@ -177,7 +178,7 @@ public class EncryptedStreamNameModule extends ModuleBase
 	 * Decrypt base64-encoded, AES/CBC-encrypted ciphertext.
 	 * @param nonce Public, one-time-use encryption salt
 	**/
-	private String decrypt( String nonce, String ciphertext ) throws Exception
+	public String decrypt( String nonce, String ciphertext ) throws Exception
 	{
 		// read key from file
 		BufferedReader buf = new BufferedReader( new FileReader(keyFile) );
@@ -206,7 +207,7 @@ public class EncryptedStreamNameModule extends ModuleBase
 	 * @param streamName Encrypted stream name in the format:
      *     [type:] [nonce] "," [encrypted stream info]
 	 *   The encrypted stream info should be in the format:
-	 *     [object id] " " [file id] " " [request IP]
+	 *     [object id] " " [fileset id] " " [binary file name] " " [file id] " " [request IP] 
 	 * @param requestIP The IP address of the Wowza request, which will be
 	 *   checked against the IP address in the stream info package.
 	**/
@@ -227,20 +228,22 @@ public class EncryptedStreamNameModule extends ModuleBase
 		String[] parts = streamName.split(","); // nonce,ciphertext		
 		String argStr = decrypt(parts[0],parts[1]);
 		String[] argArr = argStr.split(" "); // ark,file,ip
-		if ( argArr == null || argArr.length != 3 )
+		if ( argArr == null || argArr.length != 5 )
 		{
 			throw new Exception("Error decrypting stream name: " + argStr);
 		}
 
 		String objid = argArr[0];
-		String fileid = argArr[1];
-		String ip = argArr[2];
+		String filesetid = argArr[1];
+		String binaryname = argArr[2];
+		String fileid = argArr[3];
+		String ip = argArr[4];
 
 		// check format of objid and fileid
 		if ( objid == null || objid.trim().equals("")
-			|| fileid == null || fileid.trim().equals("") )
+			|| filesetid == null || filesetid.trim().equals("") || binaryname == null || binaryname.trim().equals("") )
 		{
-			throw new Exception( "Invalid object:... " + objid + "/" + fileid );
+			throw new Exception( "Invalid object:... " + objid + ":" + filesetid + ":" +  binaryname);
 		}
 
 		// make sure the request IP matches the verified IP
@@ -262,14 +265,7 @@ public class EncryptedStreamNameModule extends ModuleBase
 
 		int dot = fileid.lastIndexOf('.');
 
-		if (dot >= 0)
-		{
-			extension = fileid.substring(dot+1).toLowerCase();
-		}
-		else
-		{
-			throw new Exception( "Missing file extension: " + fileid );
-		}
+		extension = fileid.substring(dot+1).toLowerCase();
 
 		if (extension.equals("mp3"))
 			{wowzaStreamNamePrefix = "mp3:";}
@@ -287,24 +283,22 @@ public class EncryptedStreamNameModule extends ModuleBase
 		try
 		{
 			// pairpath based on objid
-			for( int i = 0; i < (objid.length() - 1); i += 2 )
+			int depth = 3;
+			for( int i = 0; i < (binaryname.length() - 1) && i < depth * 2; i += 2 )
 			{
-				newName += objid.substring(i,i+2);
+				newName += binaryname.substring(i,i+2);
 				newName += "/";
 			}
-			newName += "20775-" + objid + "-" + fileid.replaceAll("/","-");
+			newName += binaryname;
 			getLogger().warn( "decrypted: " + streamName  + " -> " + newName );
-			if(startsWithDigit(objid)) {
-				newName = wowzaStreamNamePrefix + fileid;
-				getLogger().warn( "decrypted: " + streamName  + " -> " + newName );
-			}
+
 			return newName;
 		}
 		catch ( Exception ex )
 		{
 			throw new Exception(
 				"Error building stream name: " + newName + ", " + objid + ", "
-				+ fileid
+						 + filesetid + ", " + binaryname + ", " + fileid
 			);
 		}
 	}
@@ -316,15 +310,9 @@ public class EncryptedStreamNameModule extends ModuleBase
 	private boolean startsWithDigit(String s) {
       return Pattern.compile("^[0-9]").matcher(s).find();
 	}
-	  
-	public static void main( String[] args ) throws Exception
+
+	public void setKeyFile(String keyFile)
 	{
-		String[] parts = args[0].split(",");
-		String nonce = parts[0];
-		String ciphertext = parts[1];
-		EncryptedStreamNameModule module = new EncryptedStreamNameModule();
-		module.keyFile = "streaming.key";
-		String plaintext = module.decrypt( nonce, ciphertext );
-		System.out.println("decrypted: " + plaintext);
+		this.keyFile = keyFile;
 	}
 }
