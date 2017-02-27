@@ -34,12 +34,12 @@ public class EncryptedStreamNameModuleTest  {
 
 	@Test
 	public void testDecrypt() throws Exception {
-		String encryptedtext = "kf8ih30qyrw39rpb,wSTL7GcDUZd1ic1qLwKA3ubn9Amh4rbr5NQymDdDvwT-GZW-KkzsLJfz4dd8KzwFHG5xdrqslOyaY7_m2Y60wfkJNDsVw2RbpSCxOCsX6FA=";
+		String encryptedtext = "23pzfwgc4l4qquu6,dX1BCnOu8ol9nrabXi5Vufgjv_K4YOIZLYuc-ozV3AWk6oHOGzIBfgsWRIX0kOlQ";
 		String[] parts = encryptedtext.split(",");
 		String nonce = parts[0];
 		String ciphertext = parts[1];
 		String plaintext = module.decrypt( nonce, ciphertext );
-		String expected = "3j333268h d504rk75p 34cddd4138eeb3686bdb095b9a26ac077919b0f0 mp3 127.0.0.1";
+		String expected = "3j333268h d504rk75p p-mp3.mp3 127.0.0.1";
 		Assert.assertEquals("Descripted text need to be matched", expected, plaintext);
 	}
 }
