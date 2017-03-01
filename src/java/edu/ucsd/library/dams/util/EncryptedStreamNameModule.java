@@ -207,7 +207,7 @@ public class EncryptedStreamNameModule extends ModuleBase
 	 * @param streamName Encrypted stream name in the format:
      *     [type:] [nonce] "," [encrypted stream info]
 	 *   The encrypted stream info should be in the format:
-	 *     [object id] " " [fileset id] " " [binary file name] " " [file id] " " [request IP] 
+	 *     [object id] " " [fileset id] " " [file id] " " [request IP] 
 	 * @param requestIP The IP address of the Wowza request, which will be
 	 *   checked against the IP address in the stream info package.
 	**/
@@ -235,15 +235,14 @@ public class EncryptedStreamNameModule extends ModuleBase
 
 		String objid = argArr[0];
 		String filesetid = argArr[1];
-		String binaryname = argArr[2];
-		String fileid = argArr[3];
-		String ip = argArr[4];
+		String fileid = argArr[2];
+		String ip = argArr[3];
 
 		// check format of objid and fileid
 		if ( objid == null || objid.trim().equals("")
-			|| filesetid == null || filesetid.trim().equals("") || binaryname == null || binaryname.trim().equals("") )
+			|| filesetid == null || filesetid.trim().equals("") || fileid == null || fileid.trim().equals("") )
 		{
-			throw new Exception( "Invalid object:... " + objid + ":" + filesetid + ":" +  binaryname);
+			throw new Exception( "Invalid object:... " + objid + ":" + filesetid + ":" +  fileid);
 		}
 
 		// make sure the request IP matches the verified IP
@@ -283,13 +282,13 @@ public class EncryptedStreamNameModule extends ModuleBase
 		try
 		{
 			// pairpath based on objid
-			int depth = 3;
-			for( int i = 0; i < (binaryname.length() - 1) && i < depth * 2; i += 2 )
+			int depth = 4;
+			for( int i = 0; i < (filesetid.length() - 1) && i < depth * 2; i += 2 )
 			{
-				newName += binaryname.substring(i,i+2);
+				newName += filesetid.substring(i,i+2);
 				newName += "/";
 			}
-			newName += binaryname;
+			newName += fileid;
 			getLogger().warn( "decrypted: " + streamName  + " -> " + newName );
 
 			return newName;
@@ -298,7 +297,7 @@ public class EncryptedStreamNameModule extends ModuleBase
 		{
 			throw new Exception(
 				"Error building stream name: " + newName + ", " + objid + ", "
-						 + filesetid + ", " + binaryname + ", " + fileid
+						 + filesetid + ", " + fileid
 			);
 		}
 	}
