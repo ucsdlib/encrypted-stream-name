@@ -3,6 +3,13 @@
 Wowza plugin to decrypt an encrypted stream name, do some basic validation,
 and rename the stream internally to the decrypted name.
 
+## DAMS4 vs DAMS5
+
+- DAMS4 changes should be made on the `dams4` branch.
+- DAMS5 changes should be made on the `master` branch.
+
+Please make your feature branches off the appropriate branch and setup your PRs accordingly.
+
 ### encryption process
 
 1. The DAMS PAS function [dams_objects_helper#encrypt_stream_name](https://github.com/ucsdlib/damspas/blob/develop/app/helpers/dams_objects_helper.rb#L516) builds a string consisting of the video object ARK, filename, and client IP address separated by spaces.  It then generates a 16-character random nonce, encrypts the string using the secret key, and builds the request token consisting of the nonce, a comma, and then the encrypted string:
